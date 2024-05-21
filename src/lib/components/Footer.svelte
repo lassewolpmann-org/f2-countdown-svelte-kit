@@ -27,6 +27,8 @@
                 flex-direction: column;
                 align-items: flex-start;
                 justify-content: center;
+
+                gap: 6px;
             }
         }
     }
@@ -73,9 +75,6 @@
         </div>
         <div>
             <h4>Project links</h4>
-            <a href="https://testflight.apple.com/join/1m7CChtW" target="_blank">
-                <i class="fa-brands fa-apple"></i> App Beta Test
-            </a>
             <a href="https://github.com/lassewolpmann-org/{seriesName}-countdown-svelte-kit" target="_blank">
                 <i class="fa-brands fa-github"></i> Code
             </a>

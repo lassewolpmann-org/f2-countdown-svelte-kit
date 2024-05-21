@@ -32,10 +32,10 @@
     }
 </style>
 <main>
-    {#if Object.keys(apiData.nextRaceSessions).length > 0}
-        <RaceTitle nextRace={apiData.nextRace} />
-        <SessionSelection nextEventSessions={apiData.nextRaceSessions} />
-        <Timer nextEventSessions={apiData.nextRaceSessions} />
+    {#if Object.keys(apiData.nextRace.sessions).length > 0}
+        <RaceTitle nextRace={apiData.nextRace} flags={apiData.flags} />
+        <SessionSelection nextEventSessions={apiData.nextRace.sessions} />
+        <Timer nextEventSessions={apiData.nextRace.sessions} />
         <Border />
         <UpcomingEventList
                 nextEvents={apiData.nextRaces}

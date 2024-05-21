@@ -8,6 +8,9 @@
     // Component imports
     import Body from "$lib/components/UpcomingEventList/UpcomingEvent/SessionBody.svelte";
 
+    // Function imports
+    import { isSessionInPast } from "$lib/functions/isSessionInPast";
+
     export let event: RaceData, flags: {[key: string]: string}, dataConfig: DataConfig;
 
     const upcomingEvent = new UpcomingEvent(event, flags, dataConfig);
@@ -16,13 +19,18 @@
         upcomingEvent.sessionsHidden = !upcomingEvent.sessionsHidden
     }
 
-    const isInPast = (sessionDateTime: string | undefined): boolean => {
+    const isOngoing = (sessionDateTime: string | undefined, sessionName: string | undefined): boolean => {
         if (!sessionDateTime) return false
+        if (!sessionName) return false
 
         const currentTimestamp = new Date().getTime();
-        const sessionTimestamp = new Date(sessionDateTime).getTime();
+        const sessionDuration = dataConfig.sessionLengths[sessionName];
 
-        return sessionTimestamp < currentTimestamp
+        if (!sessionDuration) return false
+        const sessionStartTimestamp = new Date(sessionDateTime).getTime();
+        const sessionEndTimestamp = sessionStartTimestamp + (sessionDuration * 60 * 1000);
+
+        return (sessionStartTimestamp < currentTimestamp) && (currentTimestamp < sessionEndTimestamp)
     }
 </script>
 <style lang="scss">
@@ -63,8 +71,8 @@
             justify-content: space-between;
         }
 
-        .checkmark {
-            opacity: 0;
+        .checkmark, .car {
+            display: none;
             font-size: 20px;
         }
     }
@@ -73,7 +81,18 @@
         color: var(--secondary-text-color);
 
         .checkmark {
-            opacity: 1;
+            display: flex;
+        }
+    }
+
+    .session.isOngoing {
+        .car {
+            display: flex;
+            transform-origin: center;
+            animation-name: car-moving;
+            animation-duration: 1.5s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
         }
     }
 
@@ -106,13 +125,24 @@
             }
         }
     }
+    
+    @keyframes car-moving {
+        from {
+            transform: translateX(-400%);
+        } 95% {
+            opacity: 0;
+        } to {
+            transform: translateX(0) rotate(540deg);
+            opacity: 0;
+        }
+    }
 </style>
 
 <div class="upcoming-event">
     <div class="session">
         <div class="head">
-            <span class="name">{upcomingEvent.flag} {upcomingEvent.eventName}</span>
-            <button on:click={toggleSessionVisibility}>
+            <span class="name">{upcomingEvent.eventName}</span>
+            <button on:click={toggleSessionVisibility} aria-label="Toggle Session Visibility">
                 <i class="fa-solid fa-chevron-up" class:hidden={upcomingEvent.sessionsHidden}></i>
             </button>
         </div>
@@ -125,10 +155,14 @@
     </div>
     <div class="all-sessions" class:hidden={upcomingEvent.sessionsHidden}>
         {#each { length: upcomingEvent.sessionNames.length } as _, i}
-            <div class="session" class:inPast={isInPast(upcomingEvent.sessionsDateTime.at(i))}>
+            <div class="session"
+                 class:inPast={isSessionInPast(upcomingEvent.sessionsDateTime.at(i), upcomingEvent.sessionNames.at(i), dataConfig)}
+                 class:isOngoing={isOngoing(upcomingEvent.sessionsDateTime.at(i), upcomingEvent.sessionNames.at(i))}
+            >
                 <div class="head">
-                    <span class="name">{upcomingEvent.sessionNames.at(i)}</span>
+                    <span class="name">{upcomingEvent.uppercaseSessionNames.at(i)}</span>
                     <span class="checkmark"><i class="fa-solid fa-flag-checkered"></i></span>
+                    <span class="car"><i class="fa-duotone fa-tire"></i></span>
                 </div>
                 <Body
                         date={upcomingEvent.sessionDates.at(i)}

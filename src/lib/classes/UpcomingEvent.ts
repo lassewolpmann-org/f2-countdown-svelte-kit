@@ -1,4 +1,4 @@
-import type {DataConfig, RaceData} from "$lib/types/RaceData";
+import type { DataConfig, RaceData } from "$lib/types/RaceData";
 import { parseName } from "$lib/functions/parseName";
 import { parseDate } from "$lib/functions/parseDate";
 import { parseEndTimes, parseTime } from "$lib/functions/parseTime";
@@ -8,6 +8,7 @@ export class UpcomingEvent {
     eventName: string;
 
     sessionNames: string[];
+    uppercaseSessionNames: string [];
 
     sessionsHidden: boolean;
 
@@ -21,9 +22,12 @@ export class UpcomingEvent {
 
     constructor(event: RaceData, flags: {[key: string]: string}, dataConfig: DataConfig) {
         this.event = event;
-        this.eventName = parseName(this.event.name);
+        this.flag = flags[this.event.localeKey];
 
-        this.sessionNames = Object.keys(this.event.sessions).map((eventName) => eventName.toUpperCase());
+        this.eventName = parseName(this.event.name, this.flag);
+
+        this.sessionNames = Object.keys(this.event.sessions);
+        this.uppercaseSessionNames = this.sessionNames.map((sessionName) => sessionName.toUpperCase());
 
         this.sessionsHidden = true;
 
@@ -32,7 +36,5 @@ export class UpcomingEvent {
         this.sessionTimes = this.sessionsDateTime.map(parseTime);
 
         this.sessionEndTimes = parseEndTimes(this.event.sessions, dataConfig);
-
-        this.flag = flags[this.event.localeKey] ? flags[this.event.localeKey] : ""
     }
 }
