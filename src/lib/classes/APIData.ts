@@ -14,7 +14,7 @@ export class APIData {
     dataConfig: DataConfig = {} as DataConfig;
 
     constructor() {
-        this.series = 'f1';
+        this.series = 'f2';
         this.currentYear = new Date().getFullYear();
     }
 
